@@ -1,0 +1,264 @@
+{
+	"info": {
+		"_postman_id": "e5eadbd8-0e25-41a7-a277-b71205c90982",
+		"name": "Task Manager API (v1)",
+		"description": "This collection documents the complete full-stack backend solution for the Backend Developer Internship assignment.\n\n**Architecture Summary:**  \nThis API is built with **Node.js/Express** and uses **MongoDB/Mongoose**.\n\n**Key Security & Design Features Demonstrated:**\n\n1. **JWT Authentication:** Handled via custom middleware (`/auth` endpoints).\n    \n2. **Role-Based Access Control (RBAC):** The `DELETE /task/{id}` endpoint is protected and restricted exclusively to users with the **\"admin\"** role.\n    \n3. **CRUD Isolation:** All Task endpoints ensure that users can only access or modify tasks they own (data isolation).\n    \n4. **RESTful Design:** Uses conventional HTTP methods (`POST`, `GET`, `PUT`, `DELETE`) and status codes (`201`, `204`, `403`).\n    \n\n**How to Test:**\n\n1. Run **AUTH: Login User** to obtain a token.\n    \n2. Paste the token into the **Authorization** tab for all protected requests (Tasks).\n    \n3. The **TASK: Delete** request should fail with a 403 error for a standard user, proving the RBAC middleware is functional.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "21508193",
+		"_collection_link": "https://ada666-1626.postman.co/workspace/cc3f731c-3b2b-4865-938f-a2d778c6467f/collection/21508193-e5eadbd8-0e25-41a7-a277-b71205c90982?action=share&source=collection_link&creator=21508193"
+	},
+	"item": [
+		{
+			"name": "AUTH: Register User",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{ \r\n    \"username\": \"admin_user\",\r\n    \"email\": \"admin@app.com\",\r\n    \"password\": \"adminpass\",\r\n    \"role\": \"admin\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{base_url}}/auth/register",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"auth",
+						"register"
+					]
+				},
+				"description": "Creates a new user in the system. The role field determines access (defaults to 'user'). Status: 201 Created."
+			},
+			"response": []
+		},
+		{
+			"name": "AUTH: Login User",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"email\": \"admin@app.com\",\r\n    \"password\": \"adminpass\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{base_url}}/auth/login",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"auth",
+						"login"
+					]
+				},
+				"description": "Authenticates a user with email/password credentials. Returns the **JWT Bearer Token** and essential user data (`userId`, `username`, `role`). **Status: 200 OK.**"
+			},
+			"response": []
+		},
+		{
+			"name": "TASK: Create New",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{auth_token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"title\": \"Final Test\",\r\n    \"description\": \"Verify API structure.\",\r\n    \"status\": \"pending\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{base_url}}/task",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"task"
+					]
+				},
+				"description": "Creates a new task and automatically assigns ownership to the authenticated user based on the JWT. Status: 201 Created."
+			},
+			"response": []
+		},
+		{
+			"name": "TASK: Get All",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{auth_token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/task",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"task"
+					]
+				},
+				"description": "Retrieves all task entities belonging only to the authenticated user (req.user.id). Demonstrates data isolation. Status: 200 OK."
+			},
+			"response": []
+		},
+		{
+			"name": "TASK: Get By ID",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{auth_token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/task/68e2a2222a242df18685324d",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"task",
+						"68e2a2222a242df18685324d"
+					]
+				},
+				"description": "Retrieves a single task resource, checking both the taskId and user ownership. Status: 200 OK."
+			},
+			"response": []
+		},
+		{
+			"name": "TASK: Update Task",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{auth_token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"title\": \"Final Test\",\r\n    \"description\": \"Status changed to completed.\",\r\n    \"status\": \"completed\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{base_url}}/task/68e2a2222a242df18685324d",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"task",
+						"68e2a2222a242df18685324d"
+					]
+				},
+				"description": "Updates the status, title, and/or description of a specific task. Requires the authenticated user to be the owner. **Status: 200 OK.**"
+			},
+			"response": []
+		},
+		{
+			"name": "TASK: Delete Task (RBAC)",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{auth_token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/task/68e2a2222a242df18685324d",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"task",
+						"68e2a2222a242df18685324d"
+					]
+				},
+				"description": "Deletes a specific task resource. This endpoint is protected by the authorize(\\['admin'\\]) middleware and should return 403 Forbidden if attempted by a standard user. Success Status: 204 No Content."
+			},
+			"response": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"requests": {},
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"requests": {},
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "base_url",
+			"value": ""
+		},
+		{
+			"key": "auth_token",
+			"value": "",
+			"type": "default"
+		}
+	]
+}
