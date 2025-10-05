@@ -1,6 +1,6 @@
 
 
-const BASE_URL = 'http://localhost:5000/api/v1';
+const BASE_URL = 'https://task-api-server-ckwf.onrender.com/api/v1';
 
 export const apiFetch = async (endpoint, token, options = {}) => {
     const defaultHeaders = {
